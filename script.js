@@ -29,7 +29,6 @@ THEN I am again presented with current and future conditions for that city
     //input: today's date / no input
     //getToday
     //get5days
-var displayData = {};
 
 var apiKey = "6212c0f9ea8c0c883022423d57c46ad7";
 
@@ -39,28 +38,47 @@ var kToF = function(kelvin){
 }
 var renderTodaysWeather = function(data){
     var current = data.current;
+
     var uvi = current.uvi;
     var humidity = current.humidity;
     var temp = kToF(current.temp);
 
-    //console.log(current);
-    //console.log("Today UVI: " + uvi);
-    //console.log("Today Humidity: " + humidity);
-    //console.log("Today Temp "+ temp);
+    var weatherCardEl = document.createElement("div");
+    weatherCardEl.classList = "card col-12";
+ 
+    var dataDiv = document.createElement("div");
+    dataDiv.classList="card-body";
+
+    var tempEl = document.createElement("div");
+    tempEl.classList="row";
+    tempEl.textContent="Temp: " +temp+"F";
+
+    var uviEl = document.createElement("div");
+    uviEl.classList="row";
+    uviEl.textContent="UVI: " + uvi;
+
+    var humidityEl = document.createElement("div");
+    humidityEl.classList="row";
+    humidityEl.textContent="Humidity: "+ humidity +"%";
+
+    dataDiv.append(tempEl);
+    dataDiv.append(humidityEl);
+    dataDiv.append(uviEl);
+    weatherCardEl.append(dataDiv);
+
+    return weatherCardEl;
 }
-var renderWeatherCard = function(data){
-    var date = data.dt_txt;
-    var dateRefined = date.split(" ")[0].split("-")[1] + "/" + date.split(" ")[0].split("-")[2] + "/" +date.split(" ")[0].split("-")[0];
+var renderWeatherCard = function(data, date){
     
-    var temp = kToF(data.main.temp);
-    var humidity = data.main.humidity;
-    var wind = data.wind.speed;
+    var temp = kToF(data.temp.day);
+    var humidity = data.humidity;
+    var wind = data.wind_speed;
 
     var weatherCardEl = document.createElement("div");
     weatherCardEl.classList = "card col";
-    var titleEl = document.createElement("h3");
-    titleEl.classList="card-header text-uppercase";
-    titleEl.textContent=dateRefined;
+    var titleEl = document.createElement("div");
+    titleEl.classList="card-header";
+    titleEl.textContent = date;
     
     var dataDiv = document.createElement("div");
     dataDiv.classList="card-body";
@@ -87,32 +105,42 @@ var renderWeatherCard = function(data){
 
 }
 var render5dayforecast = function(data){
-    
     var forecast5day = document.querySelector("#forecast-5day");
-    forecast5day.append(renderWeatherCard(data.list[1]));
-    forecast5day.append(renderWeatherCard(data.list[2]));
-    forecast5day.append(renderWeatherCard(data.list[3]));
-    forecast5day.append(renderWeatherCard(data.list[4]));
-    forecast5day.append(renderWeatherCard(data.list[5]));
-        
+    var todayData = luxon.DateTime.now();
 
+    forecast5day.append(renderWeatherCard(data.daily[1]), todayData.plus({ days: 1}).toLocaleString(luxon.DateTime.DATE_SHORT));
+    forecast5day.append(renderWeatherCard(data.daily[2]), todayData.plus({ days: 2}).toLocaleString(luxon.DateTime.DATE_SHORT));
+    forecast5day.append(renderWeatherCard(data.daily[3]), todayData.plus({ days: 3}).toLocaleString(luxon.DateTime.DATE_SHORT));
+    forecast5day.append(renderWeatherCard(data.daily[4]), todayData.plus({ days: 4}).toLocaleString(luxon.DateTime.DATE_SHORT));
+    forecast5day.append(renderWeatherCard(data.daily[5]), todayData.plus({ days: 5}).toLocaleString(luxon.DateTime.DATE_SHORT));
+        
 }
 var renderWeathermon = function(city){
-    var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=6&appid=" + apiKey;
+    var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&exclude=hourly,minutely&appid=" + apiKey;
+    var forecastToday = document.querySelector("#forecast-today");
+
     fetch(apiUrl).then(function(response){
         if(response.ok){
             response.json().then(function(data){
                 //5 Day Forecast
-                render5dayforecast(data);
+                console.log("5day");
+                console.log(data);
                 //Today's Weather: Get Lon + Lat and Save CityName
                 var lat = data.city.coord.lat;
                 var lon = data.city.coord.lon;
                 var city = data.city.name;
-                var apiUrl2 = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=daily&appid=6212c0f9ea8c0c883022423d57c46ad7";
+                var apiUrl2 = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=hourly,minutely&appid=6212c0f9ea8c0c883022423d57c46ad7";
                 fetch(apiUrl2).then(function(response2){
                     if(response2.ok){
                         response2.json().then(function(data2){
-                            renderTodaysWeather(data2);
+
+                            var titleEl = document.createElement("h2");
+                            titleEl.classList="card-header col-12";
+                            titleEl.textContent=data.city.name + " (" + data.list[0].dt_txt.split(" ")[0].split("-")[1] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[2] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[0] + ")";
+                            forecastToday.append(titleEl);
+                            forecastToday.append(renderTodaysWeather(data2));
+                            render5dayforecast(data2);
+
                         });
                     }else{
                         alert("Error at onecall API");
