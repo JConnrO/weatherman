@@ -19,3 +19,57 @@ THEN I am again presented with current and future conditions for that city
 
 */
 
+//Functions
+//renderWeatherCard
+//renderTodaysWeather
+//renderRecentSearch
+//renderWeathermon
+
+//getWeather
+    //input: today's date / no input
+    //getToday
+    //get5days
+var displayData = {};
+var getWeather = function(city){
+    var apiKey = "6212c0f9ea8c0c883022423d57c46ad7";
+    var todaysDate = luxon.DateTime.now().toLocaleString(luxon.DateTime.DATE_HUGE);
+    var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=6&appid=6212c0f9ea8c0c883022423d57c46ad7";
+  
+    fetch(apiUrl).then(function(response){
+        if(response.ok){
+            response.json().then(function(data){
+                renderWeathermon(data.list);
+            })
+        }
+        else{
+            alert("Error");
+        }
+    });
+}
+var renderTodaysWeather = function(data){
+
+}
+var renderWeatherCard = function(data){
+
+}
+var render5dayforecast = function(data){
+
+}
+var renderWeathermon = function(data){
+    //Extract from Response:
+        //Date
+        //Temp
+        //Wind
+        //Humidity
+    var day0 = data;
+    console.log(day0); 
+    var day1;
+    var day2;
+    var day3;
+    var day4;
+    var day5;
+
+
+}
+
+getWeather("jersey city");
