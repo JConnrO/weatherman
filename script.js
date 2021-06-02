@@ -19,24 +19,31 @@ THEN I am again presented with current and future conditions for that city
 
 */
 
-//Functions
-//renderWeatherCard
-//renderTodaysWeather
-//renderRecentSearch
-//renderWeathermon
-
-//getWeather
-    //input: today's date / no input
-    //getToday
-    //get5days
-
+var day1;
+var day2;
+var day3;
+var day4;
+var day5;
 var apiKey = "6212c0f9ea8c0c883022423d57c46ad7";
-
-var kToF = function(kelvin){
-    var fahrenheit = (kelvin - 273.15) * (9/5) + 32;
+var searchHistory = [];
+var kToF = function (kelvin) {
+    var fahrenheit = (kelvin - 273.15) * (9 / 5) + 32;
     return Math.floor(fahrenheit);
 }
-var renderTodaysWeather = function(data){
+var saveSearchHistory = function () {
+    localStorage.setItem("SearchHistory", JSON.stringify(searchHistory));
+}
+function loadSearchHistory() {
+    //If not local storage create local storage
+    if (localStorage.getItem("SearchHistory") === null) {
+        //Set up Array
+        //localStorage.setItem("SearchHistory", []);
+        searchHistory.push("Jersey City");
+        saveSearchHistory();
+    }
+    return JSON.parse(localStorage.getItem("SearchHistory"));
+}
+var renderTodaysWeather = function (data) {
     var current = data.current;
 
     var uvi = current.uvi;
@@ -45,21 +52,21 @@ var renderTodaysWeather = function(data){
 
     var weatherCardEl = document.createElement("div");
     weatherCardEl.classList = "card col-12";
- 
+
     var dataDiv = document.createElement("div");
-    dataDiv.classList="card-body";
+    dataDiv.classList = "card-body";
 
     var tempEl = document.createElement("div");
-    tempEl.classList="row";
-    tempEl.textContent="Temp: " +temp+"F";
+    tempEl.classList = "row";
+    tempEl.textContent = "Temp: " + temp + "F";
 
     var uviEl = document.createElement("div");
-    uviEl.classList="row";
-    uviEl.textContent="UVI: " + uvi;
+    uviEl.classList = "row";
+    uviEl.textContent = "UVI: " + uvi;
 
     var humidityEl = document.createElement("div");
-    humidityEl.classList="row";
-    humidityEl.textContent="Humidity: "+ humidity +"%";
+    humidityEl.classList = "row";
+    humidityEl.textContent = "Humidity: " + humidity + "%";
 
     dataDiv.append(tempEl);
     dataDiv.append(humidityEl);
@@ -68,90 +75,134 @@ var renderTodaysWeather = function(data){
 
     return weatherCardEl;
 }
-var renderWeatherCard = function(data, date){
-    
+var renderWeatherCard = function (data, date) {
+
     var temp = kToF(data.temp.day);
     var humidity = data.humidity;
     var wind = data.wind_speed;
 
     var weatherCardEl = document.createElement("div");
     weatherCardEl.classList = "card col";
-    var titleEl = document.createElement("div");
-    titleEl.classList="card-header";
-    titleEl.textContent = date;
-    
+    var weatherCardTitleEl = document.createElement("h5");
+    weatherCardTitleEl.classList = "card-header col-12";
+    weatherCardTitleEl.textContent = date;
+
     var dataDiv = document.createElement("div");
-    dataDiv.classList="card-body";
+    dataDiv.classList = "card-body";
 
     var tempEl = document.createElement("div");
-    tempEl.classList="row";
-    tempEl.textContent="Temp: " +temp+"F";
+    tempEl.classList = "row";
+    tempEl.textContent = "Temp: " + temp + "F";
 
     var windEl = document.createElement("div");
-    windEl.classList="row";
-    windEl.textContent="Wind: " + wind +" MPH";
+    windEl.classList = "row";
+    windEl.textContent = "Wind: " + wind + " MPH";
 
     var humidityEl = document.createElement("div");
-    humidityEl.classList="row";
-    humidityEl.textContent="Humidity: "+ humidity +"%";
+    humidityEl.classList = "row";
+    humidityEl.textContent = "Humidity: " + humidity + "%";
 
     dataDiv.append(tempEl);
     dataDiv.append(humidityEl);
     dataDiv.append(windEl);
-    weatherCardEl.append(titleEl);
+    weatherCardEl.append(weatherCardTitleEl);
     weatherCardEl.append(dataDiv);
 
     return weatherCardEl;
 
 }
-var render5dayforecast = function(data){
+var render5dayforecast = function (data) {
     var forecast5day = document.querySelector("#forecast-5day");
     var todayData = luxon.DateTime.now();
+    day1 = todayData.plus({ days: 1 }).toLocaleString(luxon.DateTime.DATE_SHORT);
+    day2 = todayData.plus({ days: 2 }).toLocaleString(luxon.DateTime.DATE_SHORT);
+    day3 = todayData.plus({ days: 3 }).toLocaleString(luxon.DateTime.DATE_SHORT);
+    day4 = todayData.plus({ days: 4 }).toLocaleString(luxon.DateTime.DATE_SHORT);
+    day5 = todayData.plus({ days: 5 }).toLocaleString(luxon.DateTime.DATE_SHORT);
 
-    forecast5day.append(renderWeatherCard(data.daily[1]), todayData.plus({ days: 1}).toLocaleString(luxon.DateTime.DATE_SHORT));
-    forecast5day.append(renderWeatherCard(data.daily[2]), todayData.plus({ days: 2}).toLocaleString(luxon.DateTime.DATE_SHORT));
-    forecast5day.append(renderWeatherCard(data.daily[3]), todayData.plus({ days: 3}).toLocaleString(luxon.DateTime.DATE_SHORT));
-    forecast5day.append(renderWeatherCard(data.daily[4]), todayData.plus({ days: 4}).toLocaleString(luxon.DateTime.DATE_SHORT));
-    forecast5day.append(renderWeatherCard(data.daily[5]), todayData.plus({ days: 5}).toLocaleString(luxon.DateTime.DATE_SHORT));
-        
+    forecast5day.append(renderWeatherCard(data.daily[1], day1));
+    forecast5day.append(renderWeatherCard(data.daily[2], day2));
+    forecast5day.append(renderWeatherCard(data.daily[3], day3));
+    forecast5day.append(renderWeatherCard(data.daily[4], day4));
+    forecast5day.append(renderWeatherCard(data.daily[5], day5));
+
 }
-var renderWeathermon = function(city){
+var renderSearchHistory = function () {
+    $("#search-history").empty();
+    var searchHistoryEl = document.querySelector("#search-history");
+    for (let index in searchHistory) {
+        var historyButton = document.createElement("button");
+        historyButton.setAttribute("type","button");
+        historyButton.classList="col-9 btn-primary btn btn-primary recent-search";
+        historyButton.textContent=searchHistory[index];
+        searchHistoryEl.append(historyButton);
+    }
+    $(".recent-search").on("click", function () {
+        var text = $(this).text();
+        console.log(text);
+        renderWeathermon(text);
+    });
+}
+
+
+// on submit - add entry to search history array
+var renderWeathermon = function (city) {
     var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&exclude=hourly,minutely&appid=" + apiKey;
     var forecastToday = document.querySelector("#forecast-today");
+    searchHistory = loadSearchHistory();
+    $("#search-history").empty();
 
-    fetch(apiUrl).then(function(response){
-        if(response.ok){
-            response.json().then(function(data){
+    renderSearchHistory();
+
+    $("#forecast-today-title").empty();
+    $("#forecast-today").empty();
+    $("#forecast-5day-title").empty();
+    $("#forecast-5day").empty();
+
+    fetch(apiUrl).then(function (response) {
+        if (response.ok) {
+            response.json().then(function (data) {
                 //5 Day Forecast
-                console.log("5day");
-                console.log(data);
                 //Today's Weather: Get Lon + Lat and Save CityName
                 var lat = data.city.coord.lat;
                 var lon = data.city.coord.lon;
                 var city = data.city.name;
                 var apiUrl2 = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=hourly,minutely&appid=6212c0f9ea8c0c883022423d57c46ad7";
-                fetch(apiUrl2).then(function(response2){
-                    if(response2.ok){
-                        response2.json().then(function(data2){
+                fetch(apiUrl2).then(function (response2) {
+                    if (response2.ok) {
+                        response2.json().then(function (data2) {
 
                             var titleEl = document.createElement("h2");
-                            titleEl.classList="card-header col-12";
-                            titleEl.textContent=data.city.name + " (" + data.list[0].dt_txt.split(" ")[0].split("-")[1] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[2] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[0] + ")";
+                            titleEl.classList = "card-header col-12";
+                            titleEl.textContent = city + " (" + data.list[0].dt_txt.split(" ")[0].split("-")[1] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[2] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[0] + ")";
                             forecastToday.append(titleEl);
                             forecastToday.append(renderTodaysWeather(data2));
                             render5dayforecast(data2);
+                           //console.log(data);
+                            //console.log(data2);
+
 
                         });
-                    }else{
+                    } else {
                         alert("Error at onecall API");
                     }
                 })
             })
         }
-        else{
+        else {
             alert("Error at lon lat API");
         }
     });
-
+};
+function renderApp() {
+    searchHistory = loadSearchHistory();
+    renderWeathermon(searchHistory[0]);
 }
-renderWeathermon("jersey city");
+renderApp();
+
+$("#submit").on("click", function () {
+    var text = $("#city-search").val();
+    searchHistory.push(text);
+    saveSearchHistory();
+    renderWeathermon(text);
+});
