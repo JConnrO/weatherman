@@ -130,26 +130,23 @@ var render5dayforecast = function (data) {
 var renderSearchHistory = function () {
     $("#search-history").empty();
     var searchHistoryEl = document.querySelector("#search-history");
-    for (let index in searchHistory) {
+    for (i=searchHistory.length-1; i >= 0; i--) {
         var historyButton = document.createElement("button");
         historyButton.setAttribute("type","button");
         historyButton.classList="col-9 btn-primary btn btn-primary recent-search";
-        historyButton.textContent=searchHistory[index];
+        historyButton.textContent=searchHistory[i];
         searchHistoryEl.append(historyButton);
     }
     $(".recent-search").on("click", function () {
         var text = $(this).text();
-        console.log(text);
         renderWeathermon(text);
     });
 }
-
-
-// on submit - add entry to search history array
 var renderWeathermon = function (city) {
     var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&exclude=hourly,minutely&appid=" + apiKey;
     var forecastToday = document.querySelector("#forecast-today");
     searchHistory = loadSearchHistory();
+    console.log(searchHistory);
     $("#search-history").empty();
 
     renderSearchHistory();
@@ -202,7 +199,9 @@ renderApp();
 
 $("#submit").on("click", function () {
     var text = $("#city-search").val();
-    searchHistory.push(text);
-    saveSearchHistory();
-    renderWeathermon(text);
+    if(text){
+        searchHistory.push(text);
+        saveSearchHistory();
+        renderWeathermon(text);
+    } 
 });
