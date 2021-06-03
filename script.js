@@ -30,6 +30,21 @@ var kToF = function (kelvin) {
     var fahrenheit = (kelvin - 273.15) * (9 / 5) + 32;
     return Math.floor(fahrenheit);
 }
+var renderUVI = function (uvi){
+    if(uvi >=0 && uvi < 2){
+        console.log("UVI is Low");
+        return("btn btn-success disabled");
+    } 
+    else if(uvi >=3 && uvi < 7){
+        console.log("UVI is Moderate");
+        return("btn btn-warning disabled");
+    }
+    else if(uvi >=7){
+        console.log("UVI is High");
+        return("btn btn-danger disabled");
+    }
+}
+
 var saveSearchHistory = function () {
     localStorage.setItem("SearchHistory", JSON.stringify(searchHistory));
 }
@@ -59,18 +74,28 @@ var renderTodaysWeather = function (data) {
     var tempEl = document.createElement("div");
     tempEl.classList = "row";
     tempEl.textContent = "Temp: " + temp + "F";
+    
+  
+    var uviRow = document.createElement("div");
+    uviRow.classList = "row";
 
-    var uviEl = document.createElement("div");
-    uviEl.classList = "row";
-    uviEl.textContent = "UVI: " + uvi;
+    var uviTitleEl = document.createElement("div");
+    uviTitleEl.classList = "uvi-title col-1";
+    uviTitleEl.textContent = "UVI: ";
+
+    var uviEl = document.createElement("button");
+    uviEl.classList = renderUVI(uvi);
+    uviEl.textContent = uvi;
 
     var humidityEl = document.createElement("div");
     humidityEl.classList = "row";
     humidityEl.textContent = "Humidity: " + humidity + "%";
 
+    uviRow.append(uviTitleEl);
+    uviRow.append(uviEl);
     dataDiv.append(tempEl);
     dataDiv.append(humidityEl);
-    dataDiv.append(uviEl);
+    dataDiv.append(uviRow);
     weatherCardEl.append(dataDiv);
 
     return weatherCardEl;
@@ -80,15 +105,24 @@ var renderWeatherCard = function (data, date) {
     var temp = kToF(data.temp.day);
     var humidity = data.humidity;
     var wind = data.wind_speed;
+    var icon = data.weather[0].icon;
+
 
     var weatherCardEl = document.createElement("div");
     weatherCardEl.classList = "card col";
+
     var weatherCardTitleEl = document.createElement("h5");
     weatherCardTitleEl.classList = "card-header col-12";
     weatherCardTitleEl.textContent = date;
 
     var dataDiv = document.createElement("div");
     dataDiv.classList = "card-body";
+
+    var iconEl = document.createElement("img");
+    iconEl.classList = "row";
+    var srcURL = `http://openweathermap.org/img/wn/${icon}@2x.png`;
+    console.log(srcURL);
+    iconEl.setAttribute("src", srcURL);
 
     var tempEl = document.createElement("div");
     tempEl.classList = "row";
@@ -102,6 +136,7 @@ var renderWeatherCard = function (data, date) {
     humidityEl.classList = "row";
     humidityEl.textContent = "Humidity: " + humidity + "%";
 
+    dataDiv.append(iconEl);
     dataDiv.append(tempEl);
     dataDiv.append(humidityEl);
     dataDiv.append(windEl);
@@ -130,12 +165,19 @@ var render5dayforecast = function (data) {
 var renderSearchHistory = function () {
     $("#search-history").empty();
     var searchHistoryEl = document.querySelector("#search-history");
+    var historyTitleEl = document.createElement("h3");
+    historyTitleEl.textContent="Search History:";
+    searchHistoryEl.append(historyTitleEl);
+
     for (i=searchHistory.length-1; i >= 0; i--) {
+       
+
         var historyButton = document.createElement("button");
         historyButton.setAttribute("type","button");
-        historyButton.classList="col-9 btn-primary btn btn-primary recent-search";
+        historyButton.classList="col-9 btn-primary btn btn-secondary recent-search";
         historyButton.textContent=searchHistory[i];
         searchHistoryEl.append(historyButton);
+
     }
     $(".recent-search").on("click", function () {
         var text = $(this).text();
@@ -175,8 +217,8 @@ var renderWeathermon = function (city) {
                             forecastToday.append(titleEl);
                             forecastToday.append(renderTodaysWeather(data2));
                             render5dayforecast(data2);
-                           //console.log(data);
-                            //console.log(data2);
+                            //console.log(data);
+                            console.log(data2);
 
 
                         });
