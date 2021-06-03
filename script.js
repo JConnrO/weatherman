@@ -134,7 +134,7 @@ var renderWeatherCard = function (data, date) {
 
 
     var weatherCardEl = document.createElement("div");
-    weatherCardEl.classList = "card col";
+    weatherCardEl.classList = "card col card-5day";
 
     var weatherCardTitleEl = document.createElement("h5");
     weatherCardTitleEl.textContent = date;
