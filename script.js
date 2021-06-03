@@ -71,30 +71,41 @@ var renderTodaysWeather = function (data) {
     var dataDiv = document.createElement("div");
     dataDiv.classList = "card-body";
 
+    var tempRow = document.createElement("div");
+    tempRow.classList = "row";
+
+    var tempTitleEl = document.createElement("div");
+    tempTitleEl.classList = "uvi-title col-2";
+    tempTitleEl.textContent = "Temp: ";
     var tempEl = document.createElement("div");
-    tempEl.classList = "row";
-    tempEl.textContent = "Temp: " + temp + "F";
-    
-  
+    tempEl.textContent = + temp + "F";
+    tempRow.append(tempTitleEl);
+    tempRow.append(tempEl);
+
     var uviRow = document.createElement("div");
     uviRow.classList = "row";
-
     var uviTitleEl = document.createElement("div");
-    uviTitleEl.classList = "uvi-title col-1";
+    uviTitleEl.classList = "uvi-title col-2";
     uviTitleEl.textContent = "UVI: ";
-
     var uviEl = document.createElement("button");
     uviEl.classList = renderUVI(uvi);
     uviEl.textContent = uvi;
-
-    var humidityEl = document.createElement("div");
-    humidityEl.classList = "row";
-    humidityEl.textContent = "Humidity: " + humidity + "%";
-
     uviRow.append(uviTitleEl);
     uviRow.append(uviEl);
-    dataDiv.append(tempEl);
-    dataDiv.append(humidityEl);
+
+    var humidityRow = document.createElement("div");
+    humidityRow.classList = "row";
+    var humidityTitleEl = document.createElement("div");
+    humidityTitleEl.classList = "uvi-title col-2";
+    humidityTitleEl.textContent = "Humidity: ";
+    var humidityEl = document.createElement("div");
+    humidityEl.textContent = humidity + "%";
+
+    humidityRow.append(humidityTitleEl);
+    humidityRow.append(humidityEl);
+
+    dataDiv.append(tempRow);
+    dataDiv.append(humidityRow);
     dataDiv.append(uviRow);
     weatherCardEl.append(dataDiv);
 
@@ -217,10 +228,7 @@ var renderWeathermon = function (city) {
                             forecastToday.append(titleEl);
                             forecastToday.append(renderTodaysWeather(data2));
                             render5dayforecast(data2);
-                            //console.log(data);
                             console.log(data2);
-
-
                         });
                     } else {
                         alert("Error at onecall API");
