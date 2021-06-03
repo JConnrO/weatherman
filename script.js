@@ -26,6 +26,9 @@ var day4;
 var day5;
 var apiKey = "6212c0f9ea8c0c883022423d57c46ad7";
 var searchHistory = [];
+var todayData = luxon.DateTime.now();
+var todaysDate = luxon.DateTime.now().toLocaleString(luxon.DateTime.DATE_SHORT);
+
 var kToF = function (kelvin) {
     var fahrenheit = (kelvin - 273.15) * (9 / 5) + 32;
     return Math.floor(fahrenheit);
@@ -60,10 +63,11 @@ function loadSearchHistory() {
 }
 var renderTodaysWeather = function (data) {
     var current = data.current;
-
-    var uvi = current.uvi;
-    var humidity = current.humidity;
+    console.log(current);
     var temp = kToF(current.temp);
+    var wind = current.wind_speed;
+    var humidity = current.humidity;
+    var uvi = current.uvi;
 
     var weatherCardEl = document.createElement("div");
     weatherCardEl.classList = "card col-12";
@@ -73,15 +77,24 @@ var renderTodaysWeather = function (data) {
 
     var tempRow = document.createElement("div");
     tempRow.classList = "row";
-
     var tempTitleEl = document.createElement("div");
     tempTitleEl.classList = "uvi-title col-2";
     tempTitleEl.textContent = "Temp: ";
     var tempEl = document.createElement("div");
-    tempEl.textContent = + temp + "F";
+    tempEl.textContent = + temp + " F";
     tempRow.append(tempTitleEl);
     tempRow.append(tempEl);
 
+    var windRow = document.createElement("div");
+    windRow.classList = "row";
+    var windTitleEl = document.createElement("div");
+    windTitleEl.classList = "uvi-title col-2";
+    windTitleEl.textContent = "Wind: ";
+    var windEl = document.createElement("div");
+    windEl.textContent = + wind + " MPH";
+    windRow.append(windTitleEl);
+    windRow.append(windEl);
+    
     var uviRow = document.createElement("div");
     uviRow.classList = "row";
     var uviTitleEl = document.createElement("div");
@@ -105,6 +118,7 @@ var renderTodaysWeather = function (data) {
     humidityRow.append(humidityEl);
 
     dataDiv.append(tempRow);
+    dataDiv.append(windRow);
     dataDiv.append(humidityRow);
     dataDiv.append(uviRow);
     weatherCardEl.append(dataDiv);
@@ -123,7 +137,6 @@ var renderWeatherCard = function (data, date) {
     weatherCardEl.classList = "card col";
 
     var weatherCardTitleEl = document.createElement("h5");
-    weatherCardTitleEl.classList = "card-header col-12";
     weatherCardTitleEl.textContent = date;
 
     var dataDiv = document.createElement("div");
@@ -132,7 +145,6 @@ var renderWeatherCard = function (data, date) {
     var iconEl = document.createElement("img");
     iconEl.classList = "row";
     var srcURL = `http://openweathermap.org/img/wn/${icon}@2x.png`;
-    console.log(srcURL);
     iconEl.setAttribute("src", srcURL);
 
     var tempEl = document.createElement("div");
@@ -147,11 +159,11 @@ var renderWeatherCard = function (data, date) {
     humidityEl.classList = "row";
     humidityEl.textContent = "Humidity: " + humidity + "%";
 
+    dataDiv.append(weatherCardTitleEl);
     dataDiv.append(iconEl);
     dataDiv.append(tempEl);
     dataDiv.append(humidityEl);
     dataDiv.append(windEl);
-    weatherCardEl.append(weatherCardTitleEl);
     weatherCardEl.append(dataDiv);
 
     return weatherCardEl;
@@ -159,7 +171,6 @@ var renderWeatherCard = function (data, date) {
 }
 var render5dayforecast = function (data) {
     var forecast5day = document.querySelector("#forecast-5day");
-    var todayData = luxon.DateTime.now();
     day1 = todayData.plus({ days: 1 }).toLocaleString(luxon.DateTime.DATE_SHORT);
     day2 = todayData.plus({ days: 2 }).toLocaleString(luxon.DateTime.DATE_SHORT);
     day3 = todayData.plus({ days: 3 }).toLocaleString(luxon.DateTime.DATE_SHORT);
@@ -224,11 +235,13 @@ var renderWeathermon = function (city) {
 
                             var titleEl = document.createElement("h2");
                             titleEl.classList = "card-header col-12";
-                            titleEl.textContent = city + " (" + data.list[0].dt_txt.split(" ")[0].split("-")[1] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[2] + "/" + data.list[0].dt_txt.split(" ")[0].split("-")[0] + ")";
+                            titleEl.textContent = `${city} ${todaysDate}` ;
                             forecastToday.append(titleEl);
                             forecastToday.append(renderTodaysWeather(data2));
                             render5dayforecast(data2);
                             console.log(data2);
+                            console.log(data);
+
                         });
                     } else {
                         alert("Error at onecall API");
